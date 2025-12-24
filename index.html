@@ -396,7 +396,7 @@
 
                 let s = this.baseScale;
                 if (this.isDust) { s = this.baseScale*(0.8+0.4*Math.sin(clock.elapsedTime*4+this.mesh.id)); if(mode==='TREE'||mode==='CAKE') s=0; }
-                else if (mode==='SCATTER' && (this.type==='PHOTO'||this.type==='STAR')) s=this.baseScale*2.5;
+                else if (mode==='SCATTER' && (this.type==='PHOTO'||this.type==='STAR')) s=this.baseScale*1.5;
                 else if (mode==='FOCUS') s=(this.mesh===focusTargetMesh)?4.5:this.baseScale*0.8;
                 this.mesh.scale.lerp(new THREE.Vector3(s,s,s), 4*dt);
             }
