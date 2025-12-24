@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     
-    <title>Grand Luxury Tree - Final Love Edition</title>
+    <title>Grand Luxury Tree - Private Access</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #000000; font-family: 'Times New Roman', serif; }
 
@@ -26,33 +26,41 @@
         /* LAYER 10: UI Overlay */
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; flex-direction: column; align-items: center; padding-top: 40px; box-sizing: border-box; transition: opacity 0.5s ease; }
 
-        /* LOVE MESSAGE STYLE (MỚI) */
+        /* LOVE MESSAGE STYLE */
         #love-message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.5);
-            font-family: 'Great Vibes', cursive; /* Font chữ viết tay lãng mạn */
-            font-size: 100px;
-            color: #ff3366;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5);
+            font-family: 'Great Vibes', cursive; font-size: 100px; color: #ff3366;
             text-shadow: 0 0 20px rgba(255, 50, 100, 0.8), 0 0 40px rgba(255, 50, 100, 0.4);
-            opacity: 0;
-            pointer-events: none;
-            z-index: 100;
-            transition: all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            white-space: nowrap;
+            opacity: 0; pointer-events: none; z-index: 100;
+            transition: all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); white-space: nowrap;
         }
-        
-        #love-message.visible {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
+        #love-message.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-        /* Loading */
+        /* Loading Screen (Z-INDEX 100) */
         #loader { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out; }
         .loader-text { color: #d4af37; font-size: 14px; letter-spacing: 4px; margin-top: 20px; text-transform: uppercase; font-weight: 100; }
         .spinner { width: 40px; height: 40px; border: 1px solid rgba(212, 175, 55, 0.2); border-top: 1px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* PASSWORD SCREEN (Z-INDEX 200 - TOPMOST) */
+        #password-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 200;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+        }
+        .pass-container { text-align: center; font-family: 'Space Mono', monospace; }
+        .pass-title { color: #d4af37; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 30px; opacity: 0.8; }
+        .pass-input {
+            background: transparent; border: none; border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+            color: #fff; font-size: 30px; letter-spacing: 10px; text-align: center;
+            width: 250px; padding: 10px; outline: none; font-family: 'Space Mono', monospace;
+            transition: border-color 0.3s;
+        }
+        .pass-input:focus { border-bottom-color: #d4af37; }
+        .pass-error { color: #ff3366; font-size: 12px; margin-top: 15px; height: 20px; opacity: 0; transition: opacity 0.3s; }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
 
         /* Typography */
         h1 {
@@ -132,6 +140,14 @@
 
 <body>
 
+    <div id="password-screen">
+        <div class="pass-container">
+            <div class="pass-title">ACCESS RESTRICTED</div>
+            <input type="password" id="password-input" class="pass-input" placeholder="DDMMYYYY" maxlength="8">
+            <div id="pass-error" class="pass-error">ACCESS DENIED</div>
+        </div>
+    </div>
+
     <div id="loader">
         <div class="spinner"></div>
         <div class="loader-text">Loading Memories</div>
@@ -159,7 +175,7 @@
                     </div>
                 </div>
             </div>
-            <audio id="bg-music" loop autoplay><source src="./audios/christmas.mp3" type="audio/mpeg"></audio>
+            <audio id="bg-music" loop><source src="./audios/christmas.mp3" type="audio/mpeg"></audio>
         </div>
     </div>
 
@@ -204,8 +220,55 @@
         let candleMesh, flameMesh, flameLight;
         const debugInfo = document.getElementById('debug-info');
 
+        // --- PASSWORD LOGIC ---
+        function initPasswordProtection() {
+            const passScreen = document.getElementById('password-screen');
+            const input = document.getElementById('password-input');
+            const errorMsg = document.getElementById('pass-error');
+            const audio = document.getElementById('bg-music');
+            const avatar = document.getElementById('music-avatar');
+
+            input.focus();
+
+            const checkPass = () => {
+                if(input.value === "25122004") {
+                    // Unlock
+                    passScreen.style.opacity = 0;
+                    passScreen.style.visibility = 'hidden';
+                    
+                    // Phát nhạc ngay lập tức khi user tương tác
+                    audio.play().then(() => {
+                        avatar.style.animationPlayState = 'running';
+                    }).catch(e => console.log("Audio waiting..."));
+
+                    // Bắt đầu quy trình loading 3D
+                    startLoadingSequence();
+                } else {
+                    // Wrong
+                    input.classList.add('shake');
+                    errorMsg.style.opacity = 1;
+                    setTimeout(() => input.classList.remove('shake'), 400);
+                    input.value = "";
+                }
+            };
+
+            input.addEventListener('keydown', (e) => { if(e.key === 'Enter') checkPass(); });
+        }
+
+        function startLoadingSequence() {
+            const loader = document.getElementById('loader');
+            // Chờ 800ms giả lập loading rồi ẩn loader
+            setTimeout(() => {
+                loader.style.opacity = 0;
+                setTimeout(() => loader.remove(), 800);
+            }, 800);
+        }
+
         async function init() {
+            initPasswordProtection(); // Kích hoạt màn hình khóa trước
+            
             try {
+                // Khởi tạo ngầm 3D bên dưới
                 initThree(); setupEnvironment(); setupLights(); createTextures(); createParticles(); createDust();     
                 createCandle(); 
                 loadPredefinedImages(); setupPostProcessing(); setupEvents();
@@ -213,18 +276,15 @@
                 
                 await initMediaPipe(); 
             } catch (e) { console.error(e); debugInfo.innerText = "Error loading."; } 
-            finally {
-                const loader = document.getElementById('loader'); 
-                if(loader) { loader.style.opacity = 0; setTimeout(() => loader.remove(), 800); }
-                animate();
-            }
+            
+            animate();
         }
 
         // --- SCRAMBLE TEXT ---
         function initScrambleText() {
             const container = document.getElementById('scramble-text');
             const chars = '!<>-_\\/[]{}—=+*^?#________';
-            const messages = [ "Chúc mừng sinh nhật Eiu ❤️", "Eiu tuổi mới thật rực rỡ và thành công ✨", "Luôn hạnh phúc khi có anh cạnh bên nhé ❤️", "Yêu em bé iu của anh iu nhìu nhắm ✨", "Chu mỏ thổi nến đi nào! 🎂" ];
+            const messages = [ "Chúc mừng sinh nhật Eiu ❤️", "Eiu tuổi mới thật rực rỡ và thành công ✨", "Luôn hạnh phúc khi có anh iu cạnh bên nhé ❤️", "Yêu em bé iu của anh iu nhìu nhắm ✨", "Chu mỏ thổi nến nè bé húi ketu! 🎂" ];
             let messageIndex = 0; let spans = [];
             
             function setText(text) {
@@ -255,8 +315,6 @@
             const iconMute = `<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`;
             let currentVolume = 0.5; audio.volume = currentVolume;
 
-            const attemptPlay = () => { audio.play().then(() => { avatar.style.animationPlayState = 'running'; document.removeEventListener('click', attemptPlay); document.removeEventListener('touchstart', attemptPlay); }).catch(e => console.log("Autoplay blocked")); };
-            attemptPlay(); document.addEventListener('click', attemptPlay); document.addEventListener('touchstart', attemptPlay);
             avatar.addEventListener('click', (e) => { e.stopPropagation(); if (audio.paused) { audio.play(); avatar.style.animationPlayState = 'running'; } else { audio.pause(); avatar.style.animationPlayState = 'paused'; } });
             muteBtn.addEventListener('click', (e) => { e.stopPropagation(); audio.muted = !audio.muted; muteBtn.innerHTML = (audio.muted || audio.volume === 0) ? iconMute : iconSoundOn; });
 
@@ -294,20 +352,23 @@
         }
         function setupEnvironment() { const pmremGenerator = new THREE.PMREMGenerator(renderer); scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture; }
         function setupLights() {
-            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-            const inner = new THREE.PointLight(0xffaa00, 2, 20); inner.position.set(0, 5, 0); mainGroup.add(inner);
-            const spot = new THREE.SpotLight(0xffcc66, 1200); spot.position.set(30, 40, 40); scene.add(spot);
-            scene.add(new THREE.DirectionalLight(0xffeebb, 0.8));
+            const ambient = new THREE.AmbientLight(0xffffff, 0.6); scene.add(ambient);
+            const innerLight = new THREE.PointLight(0xffaa00, 2, 20); innerLight.position.set(0, 5, 0); mainGroup.add(innerLight);
+            const spotGold = new THREE.SpotLight(0xffcc66, 1200); spotGold.position.set(30, 40, 40); scene.add(spotGold);
+            const spotBlue = new THREE.SpotLight(0x6688ff, 600); spotBlue.position.set(-30, 20, -30); scene.add(spotBlue);
+            const fill = new THREE.DirectionalLight(0xffeebb, 0.8); fill.position.set(0, 0, 50); scene.add(fill);
         }
         function setupPostProcessing() {
-            const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-            bloom.threshold = 0.7; bloom.strength = 0.45; bloom.radius = 0.4;
-            composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera)); composer.addPass(bloom);
+            const renderScene = new RenderPass(scene, camera);
+            const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+            bloomPass.threshold = 0.7; bloomPass.strength = 0.45; bloomPass.radius = 0.4;
+            composer = new EffectComposer(renderer); composer.addPass(renderScene); composer.addPass(bloomPass);
         }
         function createTextures() {
-            const c = document.createElement('canvas'); c.width = 128; c.height = 128; const ctx = c.getContext('2d');
-            ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,128,128); ctx.fillStyle = '#880000'; ctx.beginPath(); for(let i=-128; i<256; i+=32) { ctx.moveTo(i, 0); ctx.lineTo(i+32, 128); ctx.lineTo(i+16, 128); ctx.lineTo(i-16, 0); } ctx.fill();
-            caneTexture = new THREE.CanvasTexture(c); caneTexture.wrapS = THREE.RepeatWrapping; caneTexture.wrapT = THREE.RepeatWrapping; caneTexture.repeat.set(3, 3);
+            const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 128;
+            const ctx = canvas.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,128,128);
+            ctx.fillStyle = '#880000'; ctx.beginPath(); for(let i=-128; i<256; i+=32) { ctx.moveTo(i, 0); ctx.lineTo(i+32, 128); ctx.lineTo(i+16, 128); ctx.lineTo(i-16, 0); } ctx.fill();
+            caneTexture = new THREE.CanvasTexture(canvas); caneTexture.wrapS = THREE.RepeatWrapping; caneTexture.wrapT = THREE.RepeatWrapping; caneTexture.repeat.set(3, 3);
         }
 
         // --- PARTICLES & CANDLE ---
@@ -396,7 +457,10 @@
 
                 let s = this.baseScale;
                 if (this.isDust) { s = this.baseScale*(0.8+0.4*Math.sin(clock.elapsedTime*4+this.mesh.id)); if(mode==='TREE'||mode==='CAKE') s=0; }
-                else if (mode==='SCATTER' && (this.type==='PHOTO'||this.type==='STAR')) s=this.baseScale*2.5;
+                
+                // --- CHỈNH KÍCH THƯỚC SAO/ẢNH KHI ZOOM RA ---
+                else if (mode==='SCATTER' && (this.type==='PHOTO'||this.type==='STAR')) s = this.baseScale * 1.2;
+                
                 else if (mode==='FOCUS') s=(this.mesh===focusTargetMesh)?4.5:this.baseScale*0.8;
                 this.mesh.scale.lerp(new THREE.Vector3(s,s,s), 4*dt);
             }
